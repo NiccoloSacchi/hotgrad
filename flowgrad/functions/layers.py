@@ -1,4 +1,7 @@
-from module import Module
+# -*- coding: utf-8 -*-
+""" Implementation of the layers. """
+
+from .module import Module
 from torch import Tensor
 
 class Linear(Module):

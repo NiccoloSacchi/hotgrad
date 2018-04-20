@@ -10,16 +10,6 @@ import math
 import hotgrad
 
 from hotgrad.module import Module2Operands, Module1Operand
-
-class Sub(hotgrad.module.Module2Operands):
-    def __init__(self, l_input, r_input):
-        super(Mul, self).__init__(l_input, r_input)
-        
-        assert self.l_input.data.shape == self.r_input.data.shape, "Broadcasting is not supported" # for simplicity 
-        return
-    
-    def forward(self):
-        return 
     
 class Mul(hotgrad.module.Module2Operands):
     def __init__(self, l_input, r_input):
@@ -83,12 +73,12 @@ class Pow(hotgrad.module.Module2Operands):
         super(Pow, self).__init__(l_input, r_input)
     def forward(self):
         """ Compute the forward pass. """
-        return hotgrad.variable.Variable(self.l_input.data.pow(self.r_input.data))
+        return hotgrad.variable.Variable(self.l_input.data.pow(self.r_input.data), previous_op=self)
     
     def backward(self, grad):
         """ Propagate the gradient to the two input Variables. """
-        l_grad = self.r_input.data * self.l_input.data.pow(self.r_input.data - 1)
-        r_grad = self.l_input.data.log() * self.l_input.data.pow(self.r_input.data)
+        l_grad = grad * (self.r_input.data * self.l_input.data.pow(self.r_input.data - 1))
+        #r_grad = self.l_input.data.log() * self.l_input.data.pow(self.r_input.data)
         
         self.l_input.backward(grad = l_grad)
         return

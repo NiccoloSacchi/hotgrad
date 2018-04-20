@@ -94,11 +94,13 @@ class MatMul(hotgrad.module.Module2Operands):
 class Pow(hotgrad.module.Module2Operands):        
     def forward(self, l_input, r_input):
         """ Compute the forward pass. """
+        if isinstance(r_input, int):
+            r_input = hotgrad.variable.Variable(FloatTensor([r_input]))
         assert (isinstance(r_input, int) or l_input.data.shape == r_input.data.shape or r_input.shape == (1,)), "r_input must have the same shape as the l_input or must have shape (1,)"
         
         super(Pow, self).forward(l_input, r_input)
 
-        return hotgrad.variable.Variable(l_input.data.pow(r_input), previous_op=self)
+        return hotgrad.variable.Variable(l_input.data.pow(r_input.data), previous_op=self)
     
     def backward(self, grad):
         """ Propagate the gradient only to the base Variable. """

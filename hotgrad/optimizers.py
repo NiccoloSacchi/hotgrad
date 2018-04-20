@@ -11,4 +11,5 @@ class SGD():
     def step(self):
         for module in self.modules:
             for param in module.params():
-                param.data = param.data - self.lr * param.grad
+#                 param.data = param.data - self.lr * param.grad
+                param.data.sub_(self.lr * param.grad)

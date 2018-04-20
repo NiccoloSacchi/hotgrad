@@ -5,18 +5,17 @@ to packpropagate to the previous operation. """
 from torch import is_tensor, FloatTensor
 
 from hotgrad.module import Module
-from hotgrad.functions.operands import Mul, Mean
-from hotgrad.exceptions import NotImplicitGradient
+from hotgrad.functions.operands import *
+from hotgrad.exceptions import BackwardException
 
-# TODO define if we want to handle broadcasting in the gradient computation (probabily not hard)
+# We do not handle broadcasting in the gradient computation
 # for now assume all passed parameters are of class Variable (except for the pow())
-# TODO using assert in this way is not the best practice
 class Variable():
     """ Variable are the basic """
     def __init__(self, data, previous_op=None, requires_grad=False):
-        assert(is_tensor(data))
-        assert(isinstance(previous_op, Module) or previous_op is None)
-        assert(isinstance(requires_grad, bool))
+        assert is_tensor(data), "The data stored in a Variable must be a pytorch Tensor"
+        assert (isinstance(previous_op, Module)) or (previous_op is None), "The operation that created this Variable is not a valid Module"
+        assert isinstance(requires_grad, bool), "The parameter requires_grad must be a boolean."
         
         self.data = data
         self.shape = data.shape
@@ -28,7 +27,7 @@ class Variable():
         """ Multiplies this Variable with either another Variable (element-wise by 
         broadcasting if necessary) or a constant, i.e. 'other' can be of type 
         Variable or int/float."""
-        return Mul(self, other)()
+        return Mul(self, other).forward()
     
     def __truediv__(self, other):
         """ Divides this Variable with either another Variable (element-wise by 
@@ -60,29 +59,22 @@ class Variable():
     def __matmul__(self, other):
         """ Multiplies this Variable by another Variable, i.e. 'other' can only 
         be of type Variable and its shape has to allow for matric multiplication."""
-        print("matmul")
-        return
+        return MatMul(self, other).forward()
     
     def mean(self):
-        return Mean(self).forward()
+        return Mean(self)()
     
-    def backward(self, grad=None):
+    def backward(self, grad=FloatTensor([1])):
         # if the backpropagation starts here then shape of this Variable must be (1,)
         # (the gradient can be computed implicitly only for scalar output)
-        if grad is None: 
-            # the backward propagation starts here
-            if self.data.shape != (1,):
-                # Cannot compute implicitly the gradient
-                raise NotImplicitGradient()
-            else:
-                # Can compute implicitly the gradient => set the current gradient to 1 
-                # (derivative of this variable with respec this variable)
-                grad = FloatTensor([1]) # TODO set in the function call
+        if self.data.shape != grad.shape:
+            # Cannot compute implicitly the gradient
+            raise BackwardException("The shape of the received gradient does not match the shape of the variable.")
         
         # check if this variable requires the gradient. If so then update it's local gradient.
         if (self.requires_grad is not None and grad is not None):
-            assert(is_tensor(grad))
-            assert(grad.shape == self.data.shape)
+            assert is_tensor(grad), "The received gradient is not a Tensor."
+            assert grad.shape == self.data.shape, "The shape received gradient is not equal to the shape of this Variable."
             self.grad += grad
             
         # finally propagate the gradient

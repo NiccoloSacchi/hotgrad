@@ -2,9 +2,10 @@
 """ Here are define the base operand that can be applied on Variables so to keep the acyclic graph
 and allow the backpropagation of the gradient. """
 
-import operator 
+import operator
 from functools import reduce
 from torch import FloatTensor, is_tensor
+import math
 
 import hotgrad
 
@@ -27,7 +28,26 @@ class Mul(hotgrad.module.Module2Operands):
 
         self.l_input.backward(grad = l_grad)
         self.r_input.backward(grad = r_grad)
-        return 
+        return
+    
+class Pow(hotgrad.module.Module2Operands):
+    def __init__(self, l_input, r_input):
+        if isinstance(r_input, int):
+            r_input = hotgrad.variable.Variable(FloatTensor([r_input]))
+        assert (isinstance(r_input, int) or l_input.data.shape == r_input.data.shape or r_input.shape == (1,)), "r_input must have the same shape as the l_input or must have shape (1,)"
+
+        super(Pow, self).__init__(l_input, r_input)
+    def forward(self):
+        """ Compute the forward pass. """
+        return self.l_input.data.pow(self.r_input.data)
+    
+    def backward(self, grad):
+        """ Propagate the gradient to the two input Variables. """
+        l_grad = self.r_input.data * self.l_input.data.pow(self.r_input.data - 1)
+        r_grad = self.l_input.data.log() * self.l_input.data.pow(self.r_input.data)
+        
+        self.l_input.backward(grad = l_grad)
+        return
 
 class Mean(Module1Operand):
     def forward(self):

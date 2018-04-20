@@ -66,6 +66,9 @@ class Variable():
     def mean(self):
         return Mean(self).forward()
     
+    def pow(self, other):
+        return self.pow(other)
+    
     def backward(self, grad=None):
         # if the backpropagation starts here then shape of this Variable must be (1,)
         # (the gradient can be computed implicitly only for scalar output)

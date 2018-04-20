@@ -7,6 +7,7 @@ from torch import is_tensor, FloatTensor
 from hotgrad.module import Module
 
 from hotgrad.functions.operands import *
+from hotgrad.functions.losses import *
 from hotgrad.functions.activations import ReLU, Tanh
 from hotgrad.exceptions import BackwardException
 
@@ -60,6 +61,12 @@ class Variable():
         """ Multiplies this Variable by another Variable, i.e. 'other' can only 
         be of type Variable and its shape has to allow for matric multiplication."""
         return MatMul(self, other).forward()
+    
+    
+    def mse(self, other):
+        """ Computes the average over the squared differences among the input
+        and the target """
+        return MSE(self,other).forward()
     
     def mean(self):
         return Mean(self)()

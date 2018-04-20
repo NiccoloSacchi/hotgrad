@@ -95,16 +95,16 @@ class Pow(hotgrad.module.Module2Operands):
     def forward(self, l_input, r_input):
         """ Compute the forward pass. """
         if isinstance(r_input, int):
-            r_input = hotgrad.variable.Variable(FloatTensor([r_input]))
-        assert (isinstance(r_input, int) or l_input.data.shape == r_input.data.shape or r_input.shape == (1,)), "r_input must have the same shape as the l_input or must have shape (1,)"
+            r_input = FloatTensor([r_input])
+        assert (l_input.shape == r_input.shape or r_input.shape == (1,)), "The exponent must have the same shape as the base or must have shape (1,)"
         
         super(Pow, self).forward(l_input, r_input)
 
-        return hotgrad.variable.Variable(l_input.data.pow(r_input.data), previous_op=self)
+        return hotgrad.variable.Variable(l_input.data.pow(r_input), previous_op=self)
     
     def backward(self, grad):
         """ Propagate the gradient only to the base Variable. """
-        # note: r_input is either an int, a float or a Tensor of shape (1,)
+        # note: r_input (the exponent) is a FloatTensor since we do not compute the gradiend wrt it
         l_grad = grad * (self.r_input * self.l_input.data.pow(self.r_input - 1))
         
         self.l_input.backward(grad = l_grad)

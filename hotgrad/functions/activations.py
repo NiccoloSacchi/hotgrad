@@ -11,9 +11,13 @@ class ReLU(Module1Operand):
     Implements a rectified linear unit (ReLU) activation function.
     """
     
-    def forward(self):
-        self.input.data[self.input.data<0] = 0
-        return hotgrad.variable.Variable(self.input.data, previous_op=self)
+    def forward(self, input):
+        """ Compute the forward pass. """
+        
+        super(ReLU, self).forward(input)
+        
+        input.data[self.input.data<0] = 0
+        return hotgrad.variable.Variable(input.data, previous_op=self)
 
     def backward(self, grad):
         """ Propagate the gradient to the input Variable. """
@@ -25,9 +29,13 @@ class Tanh(Module1Operand):
     Implements Tanh activation function.
     """
     
-    def forward(self):
-        res = (self.input.data.exp() - (-self.input.data).exp()) / (self.input.data.exp() + (-self.input.data).exp())
-        return hotgrad.variable.Variable(res, previous_op=self)
+    def forward(self, input):
+        """ Compute the forward pass. """
+        
+        super(Tanh, self).forward(input)
+        
+#         res = (input.data.exp() - (-input.data).exp()) / (input.data.exp() + (-input.data).exp())
+        return hotgrad.variable.Variable(input.data.tanh(), previous_op=self)
    
     def backward(self, grad):
         """ Propagate the gradient to the input Variable. """

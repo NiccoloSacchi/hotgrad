@@ -56,8 +56,7 @@ class Variable():
     def __pow__(self, other):
         """ Compute the power of this Variable (element-wise) by a constant, 
         i.e. 'other' can only be of type int/float."""
-        print("pow")
-        return
+        return Pow(self, other).forward()
     
     def __matmul__(self, other):
         """ Multiplies this Variable by another Variable, i.e. 'other' can only 
@@ -74,7 +73,7 @@ class Variable():
         return Tanh(self).forward()
     
     def pow(self, other):
-        return self.pow(other)
+        return self.__pow__(other)
     
     def backward(self, grad=FloatTensor([1])):
         # if the backpropagation starts here then shape of this Variable must be (1,)

@@ -12,6 +12,12 @@ import hotgrad
 from hotgrad.module import Module2Operands, Module1Operand
 
 class Mul(hotgrad.module.Module2Operands):
+    def __init__(self, l_input, r_input):
+        super(Mul, self).__init__(l_input, r_input)
+        
+        assert self.l_input.data.shape == self.r_input.data.shape, "Broadcasting is not supported" # for simplicity 
+        return
+        
     def forward(self):
         """ Compute the forward pass. """
         return hotgrad.variable.Variable(self.l_input.data*self.r_input.data, previous_op=self)
@@ -20,6 +26,34 @@ class Mul(hotgrad.module.Module2Operands):
         """ Propagate the gradient to the two input Variables. """
         l_grad = self.r_input.data * grad
         r_grad = self.l_input.data * grad
+
+        self.l_input.backward(grad = l_grad)
+        self.r_input.backward(grad = r_grad)
+        return 
+    
+class MatMul(hotgrad.module.Module2Operands):
+    def __init__(self, l_input, r_input):
+        super(MatMul, self).__init__(l_input, r_input)
+        
+        assert (self.l_input.data.dim()<=2) or (self.r_input.data.dim()<=2), "Maximum supoorted dimension is 2"
+        assert self.l_input.data.shape[-1] == self.r_input.data.shape[0], ("The Variable shape does not allow matrix multiplication: " + str(self.l_input.data.shape) + " @ " + str(self.r_input.data.shape))
+        return
+    
+    def forward(self):
+        """ Compute the forward pass. """        
+        result = self.l_input.data @ self.r_input.data
+        if not is_tensor(result): # make sure you have a tensor (not a float/int)
+            result = FloatTensor([result])
+        return hotgrad.variable.Variable(result, previous_op=self)
+        
+    def backward(self, grad):
+        """ Propagate the gradient to the two input Variables. """
+        # first transpose the two input then do the matrix multiplication with the received gradient
+        r_input_t = self.r_input.data.t() if self.r_input.data.dim()==2 else self.r_input
+        l_input_t = self.l_input.data.t() if self.l_input.data.dim()==2 else self.l_input
+        
+        l_grad = grad @ r_input_t
+        r_grad = l_input_t @ grad
         # if both an input and grad had shape (1,) then the output is just a float: convert back to FloatTensor
         if not is_tensor(l_grad):
             l_grad = FloatTensor([l_grad])

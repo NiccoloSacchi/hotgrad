@@ -31,4 +31,5 @@ class Linear(Module):
         self.grad_w = self.input.t().mm(dl_ds_next_layer)
         self.grad_b = dl_ds_next_layer
         
-    
+    def params(self):
+        return self.weight

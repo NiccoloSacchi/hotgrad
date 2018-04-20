@@ -62,12 +62,6 @@ class Variable():
         be of type Variable and its shape has to allow for matric multiplication."""
         return MatMul(self, other).forward()
     
-    
-    def mse(self, other):
-        """ Computes the average over the squared differences among the input
-        and the target """
-        return MSE(self,other).forward()
-    
     def mean(self):
         return Mean(self)()
     

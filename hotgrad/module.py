@@ -29,7 +29,7 @@ class Module(object):
     
 class Module2Operands(Module):
     """ Base class for modules accepting 2 operands as input. """
-    def __init__(self, l_input, r_input):
+    def __init__(self, l_input=None, r_input=None):
 #         assert(isinstance(l_input, Variable))
 #         assert(isinstance(r_input, Variable))
         

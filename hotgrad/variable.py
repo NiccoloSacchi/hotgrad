@@ -94,7 +94,7 @@ class Variable():
             raise BackwardException("The shape of the received gradient does not match the shape of the variable.")
         
         # check if this variable requires the gradient. If so then update it's local gradient.
-        if (self.requires_grad is not None and grad is not None):
+        if (self.requires_grad and grad is not None):
             assert is_tensor(grad), "The received gradient is not a Tensor."
             assert grad.shape == self.data.shape, "The shape received gradient is not equal to the shape of this Variable."
             self.grad += grad

@@ -77,8 +77,8 @@ class MatMul(hotgrad.module.Module2Operands):
     def backward(self, grad):
         """ Propagate the gradient to the two input Variables. """
         # first transpose the two input then do the matrix multiplication with the received gradient
-        r_input_t = self.r_input.data.t() if self.r_input.data.dim()==2 else self.r_input
-        l_input_t = self.l_input.data.t() if self.l_input.data.dim()==2 else self.l_input
+        r_input_t = self.r_input.data.t() if self.r_input.data.dim()==2 else self.r_input.data
+        l_input_t = self.l_input.data.t() if self.l_input.data.dim()==2 else self.l_input.data
         
         l_grad = grad @ r_input_t
         r_grad = l_input_t @ grad

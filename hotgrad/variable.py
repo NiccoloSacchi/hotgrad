@@ -43,15 +43,13 @@ class Variable():
         """ Subtracts this Variable with either another Variable (element-wise by 
         broadcasting if necessary) or a constant, i.e. 'other' can be of type 
         Variable or int/float."""
-        print("sub")
-        return 
+        return Sub(self, other).forward()
     
     def __add__(self, other):
         """ Add this Variable with either another Variable (element-wise by 
         broadcasting if necessary) or a constant, i.e. 'other' can be of type 
         Variable or int/float."""
-        print("add")
-        return 
+        return Add(self, other).forward()
     
     def __pow__(self, other):
         """ Compute the power of this Variable (element-wise) by a constant, 
@@ -74,6 +72,12 @@ class Variable():
     
     def pow(self, other):
         return self.__pow__(other)
+    
+    def add(self, other):
+        return self.__add__(other)
+    
+    def sub(self, other):
+        return self.__sub__(other)
     
     def backward(self, grad=FloatTensor([1])):
         # if the backpropagation starts here then shape of this Variable must be (1,)

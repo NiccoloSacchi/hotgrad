@@ -62,12 +62,6 @@ class Variable():
         be of type Variable and its shape has to allow for matric multiplication."""
         return MatMul().forward(self, other)
     
-    
-    def mse(self, other):
-        """ Computes the average over the squared differences among the input
-        and the target """
-        return MSE(self, other).forward()
-    
     def mean(self):
         return Mean().forward(self)
     
@@ -102,6 +96,11 @@ class Variable():
         # finally propagate the gradient
         if (self.previous_op is not None):
             self.previous_op.backward(grad) # propagate the gradient
+            
+    # TODO: put 0 or 1?
+    def zero_grad(self):
+        if self.requires_grad:
+            self.grad.fill_(1)
             
     def __str__(self):
         return "Variable containing:" + str(self.data)

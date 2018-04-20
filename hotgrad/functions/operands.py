@@ -35,7 +35,7 @@ class Mean(Module1Operand):
         return hotgrad.variable.Variable(FloatTensor([self.input.data.mean()]), previous_op=self)
     
     def backward(self, grad):
-        """ Propagate the gradient to the two input Variables. """
+        """ Propagate the gradient to the input Variable. """
         if grad.shape != (1,):
             raise BackwardException("The Mean module must receive a gradient of shape (1,)")
         

@@ -6,6 +6,7 @@ from torch import is_tensor, FloatTensor
 
 from hotgrad.module import Module
 from hotgrad.functions.operands import Mul, Mean
+from hotgrad.functions.activations import ReLU, Tanh
 from hotgrad.exceptions import NotImplicitGradient
 
 # TODO define if we want to handle broadcasting in the gradient computation (probabily not hard)
@@ -65,6 +66,12 @@ class Variable():
     
     def mean(self):
         return Mean(self).forward()
+    
+    def relu(self):
+        return ReLU(self).forward()
+    
+    def tanh(self):
+        return Tanh(self).forward()
     
     def backward(self, grad=None):
         # if the backpropagation starts here then shape of this Variable must be (1,)

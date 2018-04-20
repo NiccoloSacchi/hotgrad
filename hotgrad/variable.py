@@ -56,8 +56,7 @@ class Variable():
     def __pow__(self, other):
         """ Compute the power of this Variable (element-wise) by a constant, 
         i.e. 'other' can only be of type int/float."""
-        print("pow")
-        return
+        return Pow(self, other).forward()
     
     def __matmul__(self, other):
         """ Multiplies this Variable by another Variable, i.e. 'other' can only 

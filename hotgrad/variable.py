@@ -7,6 +7,7 @@ from torch import is_tensor, FloatTensor
 from hotgrad.module import Module
 
 from hotgrad.functions.operands import *
+from hotgrad.functions.losses import *
 from hotgrad.functions.activations import ReLU, Tanh
 from hotgrad.exceptions import BackwardException
 
@@ -43,15 +44,13 @@ class Variable():
         """ Subtracts this Variable with either another Variable (element-wise by 
         broadcasting if necessary) or a constant, i.e. 'other' can be of type 
         Variable or int/float."""
-        print("sub")
-        return 
+        return Sub(self, other).forward()
     
     def __add__(self, other):
         """ Add this Variable with either another Variable (element-wise by 
         broadcasting if necessary) or a constant, i.e. 'other' can be of type 
         Variable or int/float."""
-        print("add")
-        return 
+        return Add(self, other).forward()
     
     def __pow__(self, other):
         """ Compute the power of this Variable (element-wise) by a constant, 
@@ -62,6 +61,12 @@ class Variable():
         """ Multiplies this Variable by another Variable, i.e. 'other' can only 
         be of type Variable and its shape has to allow for matric multiplication."""
         return MatMul(self, other).forward()
+    
+    
+    def mse(self, other):
+        """ Computes the average over the squared differences among the input
+        and the target """
+        return MSE(self,other).forward()
     
     def mean(self):
         return Mean(self)()
@@ -74,6 +79,12 @@ class Variable():
     
     def pow(self, other):
         return self.__pow__(other)
+    
+    def add(self, other):
+        return self.__add__(other)
+    
+    def sub(self, other):
+        return self.__sub__(other)
     
     def backward(self, grad=FloatTensor([1])):
         # if the backpropagation starts here then shape of this Variable must be (1,)

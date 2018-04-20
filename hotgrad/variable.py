@@ -74,7 +74,7 @@ class Variable():
         return Tanh(self).forward()
     
     def pow(self, other):
-        return self.pow(other)
+        return self.__pow__(other)
     
     def backward(self, grad=FloatTensor([1])):
         # if the backpropagation starts here then shape of this Variable must be (1,)

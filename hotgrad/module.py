@@ -11,8 +11,8 @@ class Module(object):
     network.
     """
 
-    def __call__(self):
-        return self.forward()
+#     def __call__(self, *input):
+#         return self.forward(*input)
     
     def forward(self, *input):
         raise NotImplementedError
@@ -28,45 +28,42 @@ class Module(object):
     
     
 class Module2Operands(Module):
-    """ Base class for modules accepting 2 operands as input. """
-    def __init__(self, l_input=None, r_input=None):
-#         assert(isinstance(l_input, Variable))
-#         assert(isinstance(r_input, Variable))
-        
+    """ Base class for modules accepting 2 operands in the forward pass. """
+    def __init__(self):
+        self.l_input = None
+        self.r_input = None
+    
+    def __str__(self):
+        return (self.__class__.__name__ + " operator:\n" + 
+                "\n------ Left operand ------\n" + str(self.l_input) + "\n--------------------------\n" +
+                "\n------ Right operand ------\n" + str(self.r_input) + "\n--------------------------")
+    
+    def __repr__(self):
+        return self.__str__()
+    
+    def __call__(self, l_input, r_input):
+        return self.forward(l_input, r_input)
+    
+    def forward(self, l_input, r_input):
+        """ Computes, after storing a pointer to the operands, the forward pass. """
         self.l_input = l_input
         self.r_input = r_input
-        return
-        
-    def __str__(self):
-        return (self.__class__.__name__ + " operator:\n" + 
-                "\n------ Left operand ------\n" + str(self.l_input) + "--------------------------\n" +
-                "\n------ Right operand ------\n" + str(self.r_input) + "--------------------------")
-    
-    def __repr__(self):
-        return self.__str__()
-    
-    def forward(self):
-        """ Applies the operation to the two operands passed during initialization. """
-        raise NotImplementedError
 
-        
 class Module1Operand(Module):
-    """ Base class for modules accepting only one operand as input. """
-    def __init__(self, input):
-#         assert(isinstance(input, Variable))
-        self.input = input
-        return
+    """ Base class for modules accepting only one operand as input in the forward pass. """
+    def __init__(self):
+        self.input = None
         
     def __str__(self):
         return (self.__class__.__name__ + " operator:\n" + 
-                "\n------ Operand ------\n" + str(self.input) + "--------------------------\n")
+                "\n------ Operand ------\n" + str(self.input) + "\n--------------------------\n")
     
     def __repr__(self):
         return self.__str__()
 
-    def __call__(self):
-        return self.forward()
+    def __call__(self, input):
+        return self.forward(input)
     
-    def forward(self):
-        """ Computes the forwards pass using the operand passed during initialization. """
-        raise NotImplementedError
+    def forward(self, input):
+        """ Computes, after storing a pointer to the operand, the forward pass. """
+        self.input = input

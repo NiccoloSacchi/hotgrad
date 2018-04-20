@@ -2,34 +2,22 @@
 """ Implementation of the layers. """
 
 from hotgrad.module import Module
-from torch import Tensor
+from torch import FloatTensor
+import hotgrad
 
-class Linear(Module):
+class Linear():
     """
     Implements a fully connected layer
     """
     
-    def __init__(self, input_features, output_features, bias=None):
+    def __init__(self, input_features, output_features):
         self.input_features = input_features
         self.output_features = output_features
-        self.bias = bias
-        self.weight = Tensor(input_features, output_features)
+        self.weight = hotgrad.variable.Variable(FloatTensor(input_features, output_features).normal_(0), requires_grad=True)
     
     def forward(self, input):
-        # input: N x input_features matrix
-        # weigth: input_features x output_features matrix
-        # returns N x output_features matrix
-        res = input.mm(Tensor(self.weight))
-        if self.bias != None:
-            res += self.bias
-        return res
-    
-    # TODO: need to interact with the optimizer
-    def backward(self, dl_ds_next_layer):
-        # input: N x input_features matrix
-        # dl_ds: N x output_features matrix
-        self.grad_w = self.input.t().mm(dl_ds_next_layer)
-        self.grad_b = dl_ds_next_layer
+        return input @ self.weight
+        
         
     def params(self):
         return self.weight

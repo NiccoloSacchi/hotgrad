@@ -11,16 +11,14 @@ import hotgrad
 
 from hotgrad.module import Module2Operands, Module1Operand
 
-class Add(hotgrad.module.Module2Operands):
-    def __init__(self, l_input, r_input):
-        super(Add, self).__init__(l_input, r_input)
-        
-        assert self.l_input.data.shape == self.r_input.data.shape, "Broadcasting is not supported" # for simplicity 
-        return
-    
-    def forward(self):
+class Add(hotgrad.module.Module2Operands):    
+    def forward(self, l_input, r_input):
         """ Compute the forward pass. """
-        return hotgrad.variable.Variable(self.l_input.data + self.r_input.data, previous_op=self)
+        assert l_input.data.shape == r_input.data.shape, "Broadcasting is not supported, the two inputs must be of the same dimension" # for simplicity 
+        
+        super(Add, self).forward(l_input, r_input)
+        
+        return hotgrad.variable.Variable(l_input.data + r_input.data, previous_op=self)
     
     def backward(self, grad):
         """ Propagate the gradient to the two input Variables. """
@@ -29,16 +27,14 @@ class Add(hotgrad.module.Module2Operands):
         self.l_input.backward(grad = l_grad)
         self.r_input.backward(grad = r_grad)
         
-class Sub(hotgrad.module.Module2Operands):
-    def __init__(self, l_input, r_input):
-        super(Sub, self).__init__(l_input, r_input)
-        
-        assert self.l_input.data.shape == self.r_input.data.shape, "Broadcasting is not supported" # for simplicity 
-        return
-    
-    def forward(self):
+class Sub(hotgrad.module.Module2Operands):    
+    def forward(self, l_input, r_input):
         """ Compute the forward pass. """
-        return hotgrad.variable.Variable(self.l_input.data - self.r_input.data, previous_op=self)
+        assert l_input.data.shape == r_input.data.shape, "Broadcasting is not supported, the two inputs must be of the same dimension" # for simplicity 
+        
+        super(Sub, self).forward(l_input, r_input)
+            
+        return hotgrad.variable.Variable(l_input.data - r_input.data, previous_op=self)
     
     def backward(self, grad):
         """ Propagate the gradient to the two input Variables. """
@@ -49,15 +45,13 @@ class Sub(hotgrad.module.Module2Operands):
         self.r_input.backward(grad = r_grad)
 
 class Mul(hotgrad.module.Module2Operands):
-    def __init__(self, l_input, r_input):
-        super(Mul, self).__init__(l_input, r_input)
+    def forward(self, l_input, r_input):
+        """ Compute the forward pass. """        
+        assert l_input.data.shape == r_input.data.shape, "Broadcasting is not supported, the two inputs must be of the same dimension" # for simplicity 
         
-        assert self.l_input.data.shape == self.r_input.data.shape, "Broadcasting is not supported" # for simplicity 
-        return
+        super(Mul, self).forward(l_input, r_input)
         
-    def forward(self):
-        """ Compute the forward pass. """
-        return hotgrad.variable.Variable(self.l_input.data*self.r_input.data, previous_op=self)
+        return hotgrad.variable.Variable(l_input.data*r_input.data, previous_op=self)
         
     def backward(self, grad):
         """ Propagate the gradient to the two input Variables. """
@@ -66,19 +60,16 @@ class Mul(hotgrad.module.Module2Operands):
 
         self.l_input.backward(grad = l_grad)
         self.r_input.backward(grad = r_grad)
-        return
     
 class MatMul(hotgrad.module.Module2Operands):
-    def __init__(self, l_input, r_input):
-        super(MatMul, self).__init__(l_input, r_input)
+    def forward(self, l_input, r_input):
+        """ Compute the forward pass. """         
+        assert (l_input.data.dim()<=2) or (r_input.data.dim()<=2), "Maximum supoorted dimension is 2"
+        assert l_input.data.shape[-1] == r_input.data.shape[0], ("The Variable shape does not allow matrix multiplication: " + str(l_input.data.shape) + " @ " + str(r_input.data.shape))
         
-        assert (self.l_input.data.dim()<=2) or (self.r_input.data.dim()<=2), "Maximum supoorted dimension is 2"
-        assert self.l_input.data.shape[-1] == self.r_input.data.shape[0], ("The Variable shape does not allow matrix multiplication: " + str(self.l_input.data.shape) + " @ " + str(self.r_input.data.shape))
-        return
-    
-    def forward(self):
-        """ Compute the forward pass. """        
-        result = self.l_input.data @ self.r_input.data
+        super(MatMul, self).forward(l_input, r_input)
+        
+        result = l_input.data @ r_input.data
         if not is_tensor(result): # make sure you have a tensor (not a float/int)
             result = FloatTensor([result])
         return hotgrad.variable.Variable(result, previous_op=self)
@@ -86,8 +77,8 @@ class MatMul(hotgrad.module.Module2Operands):
     def backward(self, grad):
         """ Propagate the gradient to the two input Variables. """
         # first transpose the two input then do the matrix multiplication with the received gradient
-        r_input_t = self.r_input.data.t() if self.r_input.data.dim()==2 else self.r_input
-        l_input_t = self.l_input.data.t() if self.l_input.data.dim()==2 else self.l_input
+        r_input_t = self.r_input.data.t() if self.r_input.data.dim()==2 else self.r_input.data
+        l_input_t = self.l_input.data.t() if self.l_input.data.dim()==2 else self.l_input.data
         
         l_grad = grad @ r_input_t
         r_grad = l_input_t @ grad
@@ -99,31 +90,29 @@ class MatMul(hotgrad.module.Module2Operands):
 
         self.l_input.backward(grad = l_grad)
         self.r_input.backward(grad = r_grad)
-        return
     
-class Pow(hotgrad.module.Module2Operands):
-    def __init__(self, l_input, r_input):
-        if isinstance(r_input, int):
-            r_input = hotgrad.variable.Variable(FloatTensor([r_input]))
-        assert (isinstance(r_input, int) or l_input.data.shape == r_input.data.shape or r_input.shape == (1,)), "r_input must have the same shape as the l_input or must have shape (1,)"
-
-        super(Pow, self).__init__(l_input, r_input)
-    def forward(self):
+class Pow(hotgrad.module.Module2Operands):        
+    def forward(self, l_input, r_input):
         """ Compute the forward pass. """
-        return hotgrad.variable.Variable(self.l_input.data.pow(self.r_input.data), previous_op=self)
+        assert (isinstance(r_input, int) or l_input.data.shape == r_input.data.shape or r_input.shape == (1,)), "r_input must have the same shape as the l_input or must have shape (1,)"
+        
+        super(Pow, self).forward(l_input, r_input)
+
+        return hotgrad.variable.Variable(l_input.data.pow(r_input), previous_op=self)
     
     def backward(self, grad):
-        """ Propagate the gradient to the two input Variables. """
-        l_grad = grad * (self.r_input.data * self.l_input.data.pow(self.r_input.data - 1))
-        #r_grad = self.l_input.data.log() * self.l_input.data.pow(self.r_input.data)
+        """ Propagate the gradient only to the base Variable. """
+        # note: r_input is either an int, a float or a Tensor of shape (1,)
+        l_grad = grad * (self.r_input * self.l_input.data.pow(self.r_input - 1))
         
         self.l_input.backward(grad = l_grad)
-        return
 
 class Mean(Module1Operand):
-    def forward(self):
+    def forward(self, input):
         """ Compute the forward pass. """
-        return hotgrad.variable.Variable(FloatTensor([self.input.data.mean()]), previous_op=self)
+        super(Mean, self).forward(input)
+        
+        return hotgrad.variable.Variable(FloatTensor([input.data.mean()]), previous_op=self)
     
     def backward(self, grad):
         """ Propagate the gradient to the input Variable. """
@@ -134,4 +123,3 @@ class Mean(Module1Operand):
         # compute the gradient wrt the input
         input_grad = FloatTensor(self.input.shape).fill_(1/num_entries)
         self.input.backward(grad = input_grad*grad)
-        return

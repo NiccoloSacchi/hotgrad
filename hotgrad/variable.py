@@ -4,9 +4,9 @@ to packpropagate to the previous operation. """
 
 from torch import is_tensor, FloatTensor
 
-from flowgrad.module import Module
-from flowgrad.functions.operands import Mul, Mean
-from flowgrad.exceptions import NotImplicitGradient
+from hotgrad.module import Module
+from hotgrad.functions.operands import Mul, Mean
+from hotgrad.exceptions import NotImplicitGradient
 
 # TODO define if we want to handle broadcasting in the gradient computation (probabily not hard)
 # for now assume all passed parameters are of class Variable (except for the pow())

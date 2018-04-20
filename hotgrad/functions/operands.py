@@ -6,9 +6,9 @@ import operator
 from functools import reduce
 from torch import FloatTensor, is_tensor
 
-import flowgrad
+import hotgrad
 
-from flowgrad.module import Module2Operands, Module1Operand
+from hotgrad.module import Module2Operands, Module1Operand
 
 class Mul(flowgrad.module.Module2Operands):
     def __call__(self):

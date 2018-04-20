@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """ Implementation of the losses. """
 
-from .module import Module
+from hotgrad.module import Module
 
 class MSE(Module):
     """

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """ Implementation of the activation functions. """
 
-from .module import Module
+from hotgrad.module import Module
 from torch import Tensor
 from math import exp
 

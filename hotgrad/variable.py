@@ -5,8 +5,11 @@ to packpropagate to the previous operation. """
 from torch import is_tensor, FloatTensor
 
 from hotgrad.module import Module
+
 from hotgrad.functions.operands import *
+from hotgrad.functions.activations import ReLU, Tanh
 from hotgrad.exceptions import BackwardException
+
 
 # We do not handle broadcasting in the gradient computation
 # for now assume all passed parameters are of class Variable (except for the pow())
@@ -63,6 +66,12 @@ class Variable():
     
     def mean(self):
         return Mean(self)()
+    
+    def relu(self):
+        return ReLU(self).forward()
+    
+    def tanh(self):
+        return Tanh(self).forward()
     
     def backward(self, grad=FloatTensor([1])):
         # if the backpropagation starts here then shape of this Variable must be (1,)

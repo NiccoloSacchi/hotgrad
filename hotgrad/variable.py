@@ -31,7 +31,7 @@ class Variable():
         """ Multiplies this Variable with either another Variable (element-wise by 
         broadcasting if necessary) or a constant, i.e. 'other' can be of type 
         Variable or int/float."""
-        return Mul(self, other).forward()
+        return Mul().forward(self, other)
     
     def __truediv__(self, other):
         """ Divides this Variable with either another Variable (element-wise by 
@@ -44,38 +44,38 @@ class Variable():
         """ Subtracts this Variable with either another Variable (element-wise by 
         broadcasting if necessary) or a constant, i.e. 'other' can be of type 
         Variable or int/float."""
-        return Sub(self, other).forward()
+        return Sub().forward(self, other)
     
     def __add__(self, other):
         """ Add this Variable with either another Variable (element-wise by 
         broadcasting if necessary) or a constant, i.e. 'other' can be of type 
         Variable or int/float."""
-        return Add(self, other).forward()
+        return Add().forward(self, other)
     
     def __pow__(self, other):
         """ Compute the power of this Variable (element-wise) by a constant, 
         i.e. 'other' can only be of type int/float."""
-        return Pow(self, other).forward()
+        return Pow().forward(self, other)
     
     def __matmul__(self, other):
         """ Multiplies this Variable by another Variable, i.e. 'other' can only 
         be of type Variable and its shape has to allow for matric multiplication."""
-        return MatMul(self, other).forward()
+        return MatMul().forward(self, other)
     
     
     def mse(self, other):
         """ Computes the average over the squared differences among the input
         and the target """
-        return MSE(self,other).forward()
+        return MSE(self, other).forward()
     
     def mean(self):
-        return Mean(self)()
+        return Mean().forward(self)
     
     def relu(self):
-        return ReLU(self).forward()
+        return ReLU().forward(self)
     
     def tanh(self):
-        return Tanh(self).forward()
+        return Tanh().forward(self)
     
     def pow(self, other):
         return self.__pow__(other)

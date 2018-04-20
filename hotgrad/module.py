@@ -11,6 +11,9 @@ class Module(object):
     network.
     """
 
+    def __call__(self):
+        return self.forward()
+    
     def forward(self, *input):
         raise NotImplementedError
 
@@ -42,7 +45,7 @@ class Module2Operands(Module):
     def __repr__(self):
         return self.__str__()
     
-    def __call__(self):
+    def forward(self):
         """ Applies the operation to the two operands passed during initialization. """
         raise NotImplementedError
 
@@ -60,7 +63,10 @@ class Module1Operand(Module):
     
     def __repr__(self):
         return self.__str__()
-    
+
     def __call__(self):
+        return self.forward()
+    
+    def forward(self):
         """ Computes the forwards pass using the operand passed during initialization. """
         raise NotImplementedError

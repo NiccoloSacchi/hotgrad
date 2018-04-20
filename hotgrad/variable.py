@@ -64,7 +64,7 @@ class Variable():
         return
     
     def mean(self):
-        return Mean(self)()
+        return Mean(self).forward()
     
     def backward(self, grad=None):
         # if the backpropagation starts here then shape of this Variable must be (1,)
@@ -77,7 +77,7 @@ class Variable():
             else:
                 # Can compute implicitly the gradient => set the current gradient to 1 
                 # (derivative of this variable with respec this variable)
-                grad = FloatTensor([1])
+                grad = FloatTensor([1]) # TODO set in the function call
         
         # check if this variable requires the gradient. If so then update it's local gradient.
         if (self.requires_grad is not None and grad is not None):

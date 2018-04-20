@@ -10,10 +10,10 @@ import hotgrad
 
 from hotgrad.module import Module2Operands, Module1Operand
 
-class Mul(flowgrad.module.Module2Operands):
-    def __call__(self):
+class Mul(hotgrad.module.Module2Operands):
+    def forward(self):
         """ Compute the forward pass. """
-        return flowgrad.variable.Variable(self.l_input.data*self.r_input.data, previous_op=self)
+        return hotgrad.variable.Variable(self.l_input.data*self.r_input.data, previous_op=self)
         
     def backward(self, grad):
         """ Propagate the gradient to the two input Variables. """
@@ -30,9 +30,9 @@ class Mul(flowgrad.module.Module2Operands):
         return 
 
 class Mean(Module1Operand):
-    def __call__(self):
+    def forward(self):
         """ Compute the forward pass. """
-        return flowgrad.variable.Variable(FloatTensor([self.input.data.mean()]), previous_op=self)
+        return hotgrad.variable.Variable(FloatTensor([self.input.data.mean()]), previous_op=self)
     
     def backward(self, grad):
         """ Propagate the gradient to the two input Variables. """

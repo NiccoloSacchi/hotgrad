@@ -23,7 +23,7 @@ class Linear(Module):
         if self.bias != None:
             res += self.bias
         return res
-        
+    
     # TODO: need to interact with the optimizer
     def backward(self, dl_ds_next_layer):
         # input: N x input_features matrix

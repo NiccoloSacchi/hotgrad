@@ -7,17 +7,20 @@ from hotgrad.module import Module2Operands
 
 class MSE(Module2Operands):
     """
-    Computes the Mean Squared Error:
-        formula
+    Computes the Mean Squared Error
     """
-    def __init__(self, input, target):
-        super(MSE, self).__init__(input, target)
+    def __init__(self):
+        super(MSE, self).__init__()
         
-        assert self.l_input.data.shape == self.r_input.data.shape, "Broadcasting is not supported" # for simplicity 
-
+    def __mse__(self, input, target):
+        return self.forward(input, target)
+        
     # TODO the module should remember who input and target. Just Variables should remember which operations were performed
-    def forward(self):
+    def forward(self, input, target):
         # no need to explicitly create variable. Right?
+        super(MSE, self).forward(input, target)
+        assert self.l_input.data.shape == self.r_input.data.shape, "Broadcasting is not supported" # for simplicity 
+        
         return (self.r_input.sub(self.l_input)).pow(2).mean()
     
     def backward(self, grad):

@@ -10,9 +10,6 @@ class Module(object):
     has to implement the backward step so to propagate the gradient to the previous modules in the
     network.
     """
-
-#     def __call__(self, *input):
-#         return self.forward(*input)
     
     def forward(self, *input):
         raise NotImplementedError

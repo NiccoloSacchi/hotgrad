@@ -66,6 +66,7 @@ class Sequential(Module):
     def set_params(self, modules):
         params = []
         for module in self.modules:
+#             print(module.params())
             for parameter in module.params():
                 params.append(parameter)
                 

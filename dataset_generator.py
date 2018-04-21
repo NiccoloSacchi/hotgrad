@@ -2,7 +2,7 @@ from torch import FloatTensor
 import numpy as np
 from hotgrad.variable import Variable
 
-def generate_dataset_aux(N, one_hot_encoding):
+def generate_dataset_aux(N = 1000, one_hot_encoding = False):
     """ Generate a training and a test set of N points of 2 dimensions, each sampled uniformly in [0, 1]. The
     label is 0 outside the disk of radius 1/sqrt(2π) and 1 inside. """
     
@@ -28,5 +28,5 @@ def generate_dataset_aux(N, one_hot_encoding):
     return X_train, X_test, y_train, y_test
 
 def generate_dataset(N = 1000, one_hot_encoding=False):
-    X_train, X_test, y_train, y_test =  generate_dataset_aux(N, one_hot_encoding)
-    return Variable(X_train), Variable(X_test), Variable(y_test), Variable(y_test)
+    X_train, X_test, y_train, y_test =  generate_dataset_aux(N=N, one_hot_encoding=one_hot_encoding)
+    return Variable(X_train), Variable(X_test), Variable(y_train), Variable(y_test)

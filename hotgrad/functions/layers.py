@@ -19,4 +19,4 @@ class Linear():
         return input @ self.weight
         
     def params(self):
-        return self.weight
+        return [self.weight]

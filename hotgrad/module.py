@@ -17,7 +17,7 @@ class Module(object):
     def backward(self, *gradwrtoutput):
         raise NotImplementedError
 
-    def param(self):
+    def params(self):
         return []
 
     def requires_gradient(self):

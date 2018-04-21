@@ -7,10 +7,10 @@ class SGD():
         self.lr = lr
         
     def set_params(self, params):
-        self.params = params
+        self.parameters = params
         
     def params(self):
-        return self.params
+        return self.parameters
         
     """ updates all the inputs of the modules with their gradient """
     def step(self):

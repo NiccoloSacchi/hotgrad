@@ -15,6 +15,9 @@ class Linear():
         self.output_features = output_features
         self.weight = hotgrad.variable.Variable(FloatTensor(input_features, output_features).normal_(0), requires_grad=True)
     
+    def __call__(self, input):
+        return self.forward(input)
+    
     def forward(self, input):
         return input @ self.weight
         

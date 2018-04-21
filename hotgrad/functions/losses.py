@@ -12,7 +12,7 @@ class MSE(Module2Operands):
     def __init__(self):
         super(MSE, self).__init__()
         
-    def __mse__(self, input, target):
+    def __call__(self, input, target):
         return self.forward(input, target)
         
     # TODO the module should remember who input and target. Just Variables should remember which operations were performed

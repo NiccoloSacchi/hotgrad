@@ -5,7 +5,6 @@ and allow the backpropagation of the gradient. """
 import operator
 from functools import reduce
 from torch import FloatTensor, is_tensor
-import math
 
 import hotgrad
 

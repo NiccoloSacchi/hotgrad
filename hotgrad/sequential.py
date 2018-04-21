@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from hotgrad.module import Module
 
 """ Implementation of the Sequential module """
 
@@ -11,20 +12,19 @@ class Sequential(Module):
     def __init__(self, modules, loss_criterion, optimizer):
         self.modules = modules
         self.loss_criterion = loss_criterion
+        
+        self.set_params(modules)
+        optimizer.set_params(self.params())
         self.optimizer = optimizer
         
     """
         computes the forward pass of all the modules
     """
-    def forward(self, input):
-        modules = self.modules.copy()
-        first_module = modules.pop()
-        module_result = first_module.forward(input)
-        
+    def forward(self, input):        
         for module in self.modules:
-            module_result = module.forward(module_result)
+            input = module.forward(input)
             
-        return module_result
+        return input
     
     def get_loss(self, predicted_value, target):
         return self.loss_criterion.forward(predicted_value, target)
@@ -34,20 +34,46 @@ class Sequential(Module):
         
         for e in range(0, epochs):
             sum_loss_train = 0
-            for b in range(0, X_train.size(0), batch_size):
-                output = self.forward(X_train[b : b+batch_size])
-                loss = self.criterion(output, y_train[b : b+batch_size])
+#             for b in range(0, X_train.shape[0], batch_size):
+#                 output = self.forward(X_train[b : b+batch_size])
+            output = self.forward(X_train)
+#             print("output: ", output)
+#                 loss = self.loss_criterion(output, y_train[b : b+batch_size])
+            loss = self.loss_criterion(output, y_train)
+#             print("loss: ", loss)
+            
+            sum_loss_train += loss.data[0]
+            
+            self.zero_grad()
+            # calls all the other backward() methods
+            loss.backward()
+            self.optimizer.step()
                 
-                sum_loss_train += loss.data[0]
-                loss.backward()
-                self.optimizer.step()
+            if verbose:
+                print(
+                    "Epoch " + str(e) + ": " +
+                    "Train loss:", str(sum_loss_train) + ". " +
+                    'Train accuracy {:0.2f}%'.format(self.score(X_train, y_train)) + ". " +
+                    ('Test accuracy {:0.2f}%'.format(self.score(X_test, y_test)) if compute_test_err else ""))
+    
+    def predict(self, X):
+        return self.forward(X).data.max(1)[1]
+        
+    def score(self, X, y):
+        true_classes = y.data.max(1)[1] if y.data.dim() == 2 else y.data
+        return (self.predict(X) == true_classes).sum() / X.shape[0]
+    
+    def set_params(self, modules):
+        params = []
+        for module in self.modules:
+            for parameter in module.params():
+                params.append(parameter)
                 
-                # zero_grad
-                self.zero_grad()
+        self.parameters = params
+                
+    def params(self):
+        return self.parameters
     
     def zero_grad(self):
-        for variable in self.variables:
+        for variable in self.params():
             variable.zero_grad()
-    # should call loss.backward()
-    def backward(self):
-        return 0

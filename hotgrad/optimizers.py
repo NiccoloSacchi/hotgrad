@@ -3,13 +3,17 @@
 """ Implementation of the optimizers. """
 
 class SGD():
-    def __init__(self, modules, lr = 0.01):
-        self.modules = modules
+    def __init__(self, lr = 0.01):
         self.lr = lr
+        
+    def set_params(self, params):
+        self.parameters = params
+        
+    def params(self):
+        return self.parameters
         
     """ updates all the inputs of the modules with their gradient """
     def step(self):
-        for module in self.modules:
-            for param in module.params():
-#                 param.data = param.data - self.lr * param.grad
-                param.data.sub_(self.lr * param.grad)
+        for param in self.params():
+#            param.data = param.data - self.lr * param.grad
+            param.data.sub_(self.lr * param.grad)

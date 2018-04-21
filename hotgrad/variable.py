@@ -100,7 +100,7 @@ class Variable():
     # TODO: put 0 or 1?
     def zero_grad(self):
         if self.requires_grad:
-            self.grad.fill_(1)
+            self.grad.fill_(0)
             
     def __str__(self):
         return "Variable containing:" + str(self.data)

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from hotgrad.module import Module
 
 """ Implementation of the Sequential module """
 
@@ -11,6 +12,9 @@ class Sequential(Module):
     def __init__(self, modules, loss_criterion, optimizer):
         self.modules = modules
         self.loss_criterion = loss_criterion
+        
+        self.set_params(modules)
+        optimizer.set_params(self.params())
         self.optimizer = optimizer
         
     """
@@ -39,15 +43,37 @@ class Sequential(Module):
                 loss = self.criterion(output, y_train[b : b+batch_size])
                 
                 sum_loss_train += loss.data[0]
+                
+                self.zero_grad()
+                # calls all the other backward() methods
                 loss.backward()
                 self.optimizer.step()
                 
-                # zero_grad
-                self.zero_grad()
+        if verbose:
+            print(
+                "Epoch " + str(e) + ": " +
+                "Train loss:", str(sum_loss_train) + ". " +
+                'Train accuracy {:0.2f}%'.format(self.score(X_train, y_train)) + ". " +
+                ('Test accuracy {:0.2f}%'.format(self.score(X_test, y_test)) if compute_test_err else ""))
+    
+    def predict(self, X, y):
+        return self.forward(X).data.max(1)[1]
+        
+    def score(self, X, y):
+        true_classes = y.data.max(1)[1] if y.dim() == 2 else y.data
+        return (self.predict(X) == true_classes).sum() / X.shape[0]
+    
+    def set_params(self, modules):
+        params = []
+        for module in self.modules:
+            for parameter in module.params():
+                params.append(parameter)
+                
+        self.params = params
+                
+    def params(self):
+        return self.params
     
     def zero_grad(self):
-        for variable in self.variables:
+        for variable in self.params():
             variable.zero_grad()
-    # should call loss.backward()
-    def backward(self):
-        return 0

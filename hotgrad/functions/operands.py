@@ -13,7 +13,7 @@ from hotgrad.module import Module2Operands, Module1Operand
 class Add(hotgrad.module.Module2Operands):    
     def forward(self, l_input, r_input):
         """ Compute the forward pass. """
-        assert l_input.data.shape == r_input.data.shape, "Broadcasting is not supported, the two inputs must be of the same dimension" # for simplicity 
+#         assert l_input.data.shape == r_input.data.shape, "Broadcasting is not supported, the two inputs must be of the same dimension" # for simplicity 
         
         super(Add, self).forward(l_input, r_input)
         
@@ -29,7 +29,7 @@ class Add(hotgrad.module.Module2Operands):
 class Sub(hotgrad.module.Module2Operands):    
     def forward(self, l_input, r_input):
         """ Compute the forward pass. """
-        assert l_input.data.shape == r_input.data.shape, "Broadcasting is not supported, the two inputs must be of the same dimension" # for simplicity 
+#         assert l_input.data.shape == r_input.data.shape, "Broadcasting is not supported, the two inputs must be of the same dimension" # for simplicity 
         
         super(Sub, self).forward(l_input, r_input)
             
@@ -46,7 +46,7 @@ class Sub(hotgrad.module.Module2Operands):
 class Mul(hotgrad.module.Module2Operands):
     def forward(self, l_input, r_input):
         """ Compute the forward pass. """        
-        assert l_input.data.shape == r_input.data.shape, "Broadcasting is not supported, the two inputs must be of the same dimension" # for simplicity 
+#         assert l_input.data.shape == r_input.data.shape, "Broadcasting is not supported, the two inputs must be of the same dimension" # for simplicity 
         
         super(Mul, self).forward(l_input, r_input)
         
@@ -63,8 +63,8 @@ class Mul(hotgrad.module.Module2Operands):
 class MatMul(hotgrad.module.Module2Operands):
     def forward(self, l_input, r_input):
         """ Compute the forward pass. """         
-        assert (l_input.data.dim()<=2) or (r_input.data.dim()<=2), "Maximum supoorted dimension is 2"
-        assert l_input.data.shape[-1] == r_input.data.shape[0], ("The Variable shape does not allow matrix multiplication: " + str(l_input.data.shape) + " @ " + str(r_input.data.shape))
+        assert (l_input.data.dim()<=2) or (r_input.data.dim()<=2), "Maximum supported dimension is 2"
+        assert l_input.data.shape[-1] == r_input.data.shape[0], ("The Variables shape does not allow matrix multiplication: " + str(l_input.data.shape) + " @ " + str(r_input.data.shape))
         
         super(MatMul, self).forward(l_input, r_input)
         

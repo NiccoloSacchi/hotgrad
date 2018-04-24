@@ -14,12 +14,13 @@ class Linear():
         self.input_features = input_features
         self.output_features = output_features
         self.weight = hotgrad.variable.Variable(FloatTensor(input_features, output_features).normal_(0), requires_grad=True)
+        self.bias = hotgrad.variable.Variable(FloatTensor(1, output_features).normal_(0), requires_grad=True)
     
     def __call__(self, input):
         return self.forward(input)
     
     def forward(self, input):
-        return input @ self.weight
+        return (input @ self.weight) + self.bias
         
     def params(self):
-        return [self.weight]
+        return [self.weight, self.bias]

@@ -90,14 +90,24 @@ class Variable():
     def backward(self, grad=FloatTensor([1])):
         # if the backpropagation starts here then shape of this Variable must be (1,)
         # (the gradient can be computed implicitly only for scalar output)
-        if self.data.shape != grad.shape:
-            # Cannot compute implicitly the gradient
-            raise BackwardException("The shape of the received gradient does not match the shape of the variable.")
         
+        if not is_tensor(grad):
+            raise BackwardException("The received gradient is not a Tensor.")
+        if grad.dim() != self.data.dim():
+            raise BackwardException("The number of dimensions of the received gradient is not equal to the number of dimensions of this Variable.")
+        if self.data.shape[0] != 1 and grad.shape[0] != self.data.shape[0]:
+            raise BackwardException("The first dimension of this Variable must be either 1 or equal to the first dimension of the received gradient. Grad shape:" + str(grad.shape) + ". Variable shape:" + str(self.data.shape))
+        if grad.dim()>1 and self.data.shape[1] != 1 and grad.shape[1] != self.data.shape[1]:
+            raise BackwardException("The second dimension of this Variable must be either 1 or equal to the second dimension of the received gradient. Grad shape: " + str(grad.shape) + ". Variable shape: " + str(self.data.shape))
+        
+        # sum over the dimensions if broadcasting was used
+        if grad.shape[0] != self.data.shape[0]:
+            grad = grad.sum(0).unsqueeze(0)
+        if grad.dim()>1 and (grad.shape[1] != self.data.shape[1]):
+            grad = grad.sum(1).unsqueeze(1)
+            
         # check if this variable requires the gradient. If so then update it's local gradient.
-        if (self.requires_grad and grad is not None):
-            assert is_tensor(grad), "The received gradient is not a Tensor."
-            assert grad.shape == self.data.shape, "The shape received gradient is not equal to the shape of this Variable."
+        if (self.requires_grad and grad is not None):            
             self.grad += grad
             
         # finally propagate the gradient

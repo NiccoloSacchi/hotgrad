@@ -26,3 +26,6 @@ class Linear():
         
     def params(self):
         return [self.weight, self.bias]
+
+    def clear(self):
+        self.__init__(self.input_features, self.output_features)

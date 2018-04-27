@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from hotgrad.module import Module
+from sklearn.model_selection import KFold
+from hotgrad.functions.layers import Linear
 
 """ Implementation of the Sequential module """
 
@@ -17,6 +19,16 @@ class Sequential(Module):
         optimizer.set_params(self.params())
         self.optimizer = optimizer
         
+    def clear(self):
+        for module in self.modules:
+            if isinstance(module, Linear):
+                module.clear()
+
+        self.loss_criterion.clear()
+        self.optimizer.clear()
+
+        self.__init__(self.modules, self.loss_criterion, self.optimizer)
+
     """
         computes the forward pass of all the modules
     """
@@ -63,6 +75,37 @@ class Sequential(Module):
         true_classes = y.data.max(1)[1] if y.data.dim() == 2 else y.data
         return (self.predict(X) == true_classes).sum() / X.shape[0]
     
+    def cross_validate(self, X, y, n_splits=4, epochs=100, verbose=False):
+        """ Run cross validation on the model and return the obtained test and train scores. """
+
+        kf = KFold(n_splits=n_splits, random_state=1, shuffle=True)
+        tr_scores = []
+        va_scores = []
+
+        result = {
+            "train_score": [],
+            "test_score" : []
+        }
+
+        split_n = 1
+        for tr_indices, va_indices in kf.split(X):
+            if verbose:
+                print("----------------- fold " + str(split_n) + "/" + str(n_splits) + " -----------------")
+            tr_indices = tr_indices.tolist()
+            va_indices = va_indices.tolist()
+            X_tr, y_tr = X[tr_indices], y[tr_indices]
+            X_te, y_te = X[va_indices], y[va_indices]
+
+            self.clear()
+            self.fit(X_tr, y_tr, epochs=epochs, verbose=verbose)
+
+            result["train_score"].append(self.score(X_tr, y_tr))
+            result["test_score"].append(self.score(X_te, y_te))
+
+            split_n = split_n + 1
+
+        return result
+
     def set_params(self, modules):
         params = []
         for module in self.modules:

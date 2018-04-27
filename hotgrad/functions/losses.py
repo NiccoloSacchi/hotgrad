@@ -12,6 +12,9 @@ class MSE(Module2Operands):
     def __init__(self):
         super(MSE, self).__init__()
         
+    def clear(self):
+        self.__init__()
+
     def __call__(self, input, target):
         return self.forward(input, target)
         

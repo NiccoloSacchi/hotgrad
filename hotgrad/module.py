@@ -19,10 +19,6 @@ class Module(object):
 
     def params(self):
         return []
-
-    def requires_gradient(self):
-        return self.req_grad
-    
     
 class Module2Operands(Module):
     """ Base class for modules accepting 2 operands in the forward pass. """

@@ -6,6 +6,9 @@ class SGD():
     def __init__(self, lr = 0.01):
         self.lr = lr
         
+    def clear(self):
+        self.__init__(self.lr)
+
     def set_params(self, params):
         self.parameters = params
         

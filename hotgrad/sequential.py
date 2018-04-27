@@ -41,8 +41,11 @@ class Sequential(Module):
     def get_loss(self, predicted_value, target):
         return self.loss_criterion.forward(predicted_value, target)
     
-    def fit(self, X_train, y_train, X_test=None, y_test=None, batch_size=20, epochs=25, verbose=True):
+    def fit(self, X_train, y_train, X_test=None, y_test=None, batch_size=20, epochs=25, verbose=True, log_error=False):
         compute_test_err = X_test is not None and y_test is not None
+        
+        if log_error:
+            file = open("errors.txt", "w") 
         
         for e in range(0, epochs):
             sum_loss_train = 0
@@ -65,15 +68,30 @@ class Sequential(Module):
                 print(
                     "Epoch " + str(e) + ": " +
                     "Train loss:", str(sum_loss_train) + ". " +
-                    'Train accuracy {:0.2f}%'.format(self.score(X_train, y_train)) + ". " +
-                    ('Test accuracy {:0.2f}%'.format(self.score(X_test, y_test)) if compute_test_err else ""))
-    
+                    'Train accuracy {:0.2f}%'.format(self.score(X_train, y_train)*100) + ". " +
+                    ('Test accuracy {:0.2f}%'.format(self.score(X_test, y_test)*100) if compute_test_err else ""))
+            if log_error:
+                file.write("Epoch " + str(e) + ": " +
+                    "Train loss: " + str(sum_loss_train) + ". " +
+                    'Train error {:0.2f}%'.format(self.compute_nb_errors(X_train, y_train)*100) + ". " +
+                    ('Test error {:0.2f}%'.format(self.compute_nb_errors(X_test, y_test)*100) if compute_test_err else "") + "\n")
+
+        if log_error:
+            print("Last Epoch: " +
+            "Train loss:", str(sum_loss_train) + ". " +
+            'Train error {:0.2f}%'.format(self.compute_nb_errors(X_train, y_train)*100) + ". " +
+            ('Test error {:0.2f}%'.format(self.compute_nb_errors(X_test, y_test)*100) if compute_test_err else ""))
+
     def predict(self, X):
         return self.forward(X).data.max(1)[1]
         
     def score(self, X, y):
         true_classes = y.data.max(1)[1] if y.data.dim() == 2 else y.data
         return (self.predict(X) == true_classes).sum() / X.shape[0]
+    
+    def compute_nb_errors(self, X, y):
+        true_classes = y.data.max(1)[1] if y.data.dim() == 2 else y.data
+        return (self.predict(X) != true_classes).sum() / X.shape[0]
     
     def cross_validate(self, X, y, n_splits=4, epochs=100, verbose=False):
         """ Run cross validation on the model and return the obtained test and train scores. """

@@ -2,7 +2,7 @@
 """ The Variable object stores the previous operation so to allow the gradient
 to packpropagate to the previous operation. """
 
-from torch import is_tensor, FloatTensor
+from torch import FloatTensor
 
 from hotgrad.module import Module
 
@@ -12,12 +12,11 @@ from hotgrad.functions.activations import ReLU, Tanh
 from hotgrad.exceptions import BackwardException
 
 
-# We do not handle broadcasting in the gradient computation
-# for now assume all passed parameters are of class Variable (except for the pow())
+# For now assume all passed parameters are of class Variable (except for the pow())
 class Variable():
     """ Variable are the basic """
     def __init__(self, data, previous_op=None, requires_grad=False):
-        assert is_tensor(data), "The data stored in a Variable must be a pytorch Tensor"
+        assert isinstance(data, FloatTensor), "The data stored in a Variable must be a pytorch Tensor"
         assert (isinstance(previous_op, Module)) or (previous_op is None), "The operation that created this Variable is not a valid Module"
         assert isinstance(requires_grad, bool), "The parameter requires_grad must be a boolean."
         
@@ -91,7 +90,7 @@ class Variable():
         # if the backpropagation starts here then shape of this Variable must be (1,)
         # (the gradient can be computed implicitly only for scalar output)
         
-        if not is_tensor(grad):
+        if not isinstance(grad, FloatTensor):
             raise BackwardException("The received gradient is not a Tensor.")
         if grad.dim() != self.data.dim():
             raise BackwardException("The number of dimensions of the received gradient is not equal to the number of dimensions of this Variable.")
@@ -114,7 +113,6 @@ class Variable():
         if (self.previous_op is not None):
             self.previous_op.backward(grad) # propagate the gradient
             
-    # TODO: put 0 or 1?
     def zero_grad(self):
         if self.requires_grad:
             self.grad.fill_(0)

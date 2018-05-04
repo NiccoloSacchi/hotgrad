@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """ Implementation of the layers. """
 
-from hotgrad.module import Module
 from torch import FloatTensor
 import hotgrad
 
 class Linear():
     """
     Implements a fully connected layer
+    The number of output features is the only needed parameter for initialization
+    The number of input features is automatically computed during the forward pass
     """
     
     def __init__(self, output_features):

@@ -9,25 +9,17 @@ class Sequential(Module):
     """
         modules: list of modules that compose the network
         loss_criterion: the function that is used for computing the loss
-        optimizer: the optimized used for updating the gradients
+        optimizer: the optimizer used for updating the gradients
     """
     def __init__(self, modules, loss_criterion, optimizer):
         self.modules = modules
         self.loss_criterion = loss_criterion
-        
-#         self.set_params(modules)
-#         optimizer.set_params(self.params())
         self.optimizer = optimizer
         
     def clear(self):
         for module in self.modules:
             if isinstance(module, Linear):
                 module.clear()
-
-#         self.loss_criterion.clear()
-#         self.optimizer.clear()
-# 
-#         self.__init__(self.modules, self.loss_criterion, self.optimizer)
 
     """
         computes the forward pass of all the modules
@@ -54,18 +46,8 @@ class Sequential(Module):
             sum_loss_train = 0
             
             for b in range(0, X_train.shape[0], batch_size):
-                output = self.forward(X_train[b : b+batch_size])
-
-#             output = self.forward(X_train)
-            
-            
-#             print("output: ", output)
+                output = self.forward(X_train[b : b+batch_size])            
                 loss = self.loss_criterion(output, y_train[b : b+batch_size])
-
-
-                loss = self.loss_criterion(output, y_train)
-#             print("loss: ", loss)
-            
                 sum_loss_train += loss.data[0]
                 
                 self.zero_grad()
@@ -102,7 +84,7 @@ class Sequential(Module):
         true_classes = y.data.max(1)[1] if y.data.dim() == 2 else y.data
         return (self.predict(X) != true_classes).sum() / X.shape[0]
     
-    def cross_validate(self, X, y, n_splits=4, epochs=100, verbose=False):
+    def cross_validate(self, X, y, batch_size=20, n_splits=4, epochs=100, verbose=False):
         """ Run cross validation on the model and return the obtained test and train scores. """
 
         kf = KFold(n_splits=n_splits, random_state=1, shuffle=True)
@@ -124,7 +106,7 @@ class Sequential(Module):
             X_te, y_te = X[va_indices], y[va_indices]
 
             self.clear()
-            self.fit(X_tr, y_tr, epochs=epochs, verbose=verbose)
+            self.fit(X_tr, y_tr, batch_size=batch_size, epochs=epochs, verbose=verbose)
 
             result["train_score"].append(self.score(X_tr, y_tr))
             result["test_score"].append(self.score(X_te, y_te))

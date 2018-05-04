@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 """ Implementation of the "abstract" class representing the module."""
 
-# import torch
-# from .variable import Variable
-
 class Module(object):
     """ Base class that provides the interface that all the modules should implement. Each module
     is part of the newtwork and, other that implementing the operation on the input (forward pass),

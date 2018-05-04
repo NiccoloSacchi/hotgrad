@@ -15,8 +15,8 @@ class Sequential(Module):
         self.modules = modules
         self.loss_criterion = loss_criterion
         
-        self.set_params(modules)
-        optimizer.set_params(self.params())
+#         self.set_params(modules)
+#         optimizer.set_params(self.params())
         self.optimizer = optimizer
         
     def clear(self):
@@ -24,10 +24,10 @@ class Sequential(Module):
             if isinstance(module, Linear):
                 module.clear()
 
-        self.loss_criterion.clear()
-        self.optimizer.clear()
-
-        self.__init__(self.modules, self.loss_criterion, self.optimizer)
+#         self.loss_criterion.clear()
+#         self.optimizer.clear()
+# 
+#         self.__init__(self.modules, self.loss_criterion, self.optimizer)
 
     """
         computes the forward pass of all the modules
@@ -35,6 +35,9 @@ class Sequential(Module):
     def forward(self, input):        
         for module in self.modules:
             input = module.forward(input)
+            
+        self.set_params(self.modules)
+        self.optimizer.set_params(self.params())
             
         return input
     
@@ -49,20 +52,26 @@ class Sequential(Module):
         
         for e in range(0, epochs):
             sum_loss_train = 0
-#             for b in range(0, X_train.shape[0], batch_size):
-#                 output = self.forward(X_train[b : b+batch_size])
-            output = self.forward(X_train)
+            
+            for b in range(0, X_train.shape[0], batch_size):
+                output = self.forward(X_train[b : b+batch_size])
+
+#             output = self.forward(X_train)
+            
+            
 #             print("output: ", output)
-#                 loss = self.loss_criterion(output, y_train[b : b+batch_size])
-            loss = self.loss_criterion(output, y_train)
+                loss = self.loss_criterion(output, y_train[b : b+batch_size])
+
+
+                loss = self.loss_criterion(output, y_train)
 #             print("loss: ", loss)
             
-            sum_loss_train += loss.data[0]
-            
-            self.zero_grad()
-            # calls all the other backward() methods
-            loss.backward()
-            self.optimizer.step()
+                sum_loss_train += loss.data[0]
+                
+                self.zero_grad()
+                # calls all the other backward() methods
+                loss.backward()
+                self.optimizer.step()
                 
             if verbose:
                 print(

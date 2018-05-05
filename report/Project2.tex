@@ -20,7 +20,7 @@
         
 \pretitle{\begin{center}\Huge\bfseries} % Article title formatting
 \posttitle{\end{center}} % Article title closing formatting
-\title{Deep Learning - Project 1}
+\title{Hotgrad: a deep learning framework}
 \author{
         % Your name
         \textsc{Niccol\`{o} Sacchi, Succa Riccardo \& Marco Zoveralli}
@@ -36,10 +36,10 @@
 \end{abstract}
 \section{Introduction}
     
-   In the development of a deep learning framework, it is crucial to provide the final user an highly versatile and efficient set of modules, that can be freely combined in order to construct complex neural networks. Our approach focused on this features and aimed to simplify the network basic operations. In particular, the functioning of a neural network is based on two main steps, the forward and the backward pass, that allow the network to compute the output (given an input) and to train its parameters to increase the accurancy.\\
-   Each layer of the fully connected network consists in a series of nodes, each of them connected to the entire set of nodes of the previous layer with a series of weights. During the forward pass, an input is given to the first layer and it is propagated to all the subsequent layers by multiplying it with the weights and additionally summing biases. In order to introcude a non-linearity into the network, each layer usually applies a non-linear function after this operation. This non-linear function avoids that the output can be reproduced from a linear combination of the inputs, which leads to poor performances when the input dataset is not linearly separable. From a mathematical point of view, the forward pass can be seen as a series of function applied to the input:\\
+   In the development of a deep learning framework, it is crucial to provide the final user an highly versatile and efficient set of modules, that can be freely combined in order to construct complex neural networks. Our approach focused on this features and aimed to simplify the network basic operations. In particular, the functioning of a neural network is based on two main steps, the forward and the backward passes, that allow the network to compute the output (given an input) and to train its parameters in order to increase the accurancy.\\
+   Each layer of the fully connected network consists in a series of nodes, each of them connected to the entire set of nodes of the previous layer with a series of weights. During the forward pass, an input is given to the first layer and it is propagated to all the subsequent layers by multiplying it with the weights and additionally summing biases. In order to introduce a non-linearity into the network, each layer usually applies a non-linear function after this operation. This non-linear function avoids that the output can be reproduced from a linear combination of the inputs, which leads to poor accuracy when the input dataset is not linearly separable. From a mathematical point of view, the forward pass can be seen as a series of function applied to the input:\\
    \[y = f(g(h(...(x)))\]\\
-   All the weights and biases of the network are initially set to an uniform value from the interval $(-1/\sqrt{d}, 1/\sqrt{d}) $ (where d is the layer's input dimension), so at the beginning the accurancy of the network is around 50\%. In order to adjust all the layers' parameters, modern neural networks use the \textit{back propagation}, based on the chain rule. The back propagation aims to compute the gradient of the loss function with respect to the input and use it to distribute the error to all the layers. In particular, the loss function fist calculate how much the output of the network differs from the expected output. Then, the gradient of the loss is propagated back through the network and associates a value to each neuron, which reflect how much the neuron contributes to the total error. Finally, an optimization algorithm uses this error to update the weights and biases of each layer, in order to minimize the loss function:\\
+   All the weights and biases of the network are initially set to a uniform value from the interval $(-1/\sqrt{d}, 1/\sqrt{d}) $ (where d is the layer's input dimension), so at the beginning the accurancy of the network is around 50\%. In order to adjust all the layers' parameters, modern neural networks use the \textit{back propagation}, based on the chain rule. The back propagation aims to compute the gradient of the loss function with respect to the input and use it to distribute the error to all the layers. In particular, the loss function fist calculates how much the output of the network differs from the expected output. Then, the gradient of the loss is propagated back through the network and associates a value to each neuron, which reflects how much the neuron contributes to the total error. Finally, an optimization algorithm uses this error to update the weights and biases of each layer, in order to minimize the loss function:\\
     \[w = w + \eta\nabla L(w)\]
     \[b = b + \eta\nabla L(b)\]\\
    where \textit{w} and \textit{b} indicates the weight and biases for each layer.
@@ -56,7 +56,7 @@
 		\caption {Forward: The Operation Module generates a new Variable, containing the result and the link to it. Backward: The Operation Module computes the new gradient and sends it to the Input Variables.}
 	\end{center}
 
-	In the forward pass, the operations takes their inputs as Variables and produces a new Variable with the data field set to the result of the operation itself; the new Variable also contain the link to the function that generated it. Then, this new Variable can be a input for a subsequent operation, and the process is repeated.  Starting from the input, this chain of operations continues until the final layer of the network. 
+	In the forward pass, the operation takes its inputs as Variables and produces a new Variable with the data field set to the result of the operation itself; the new Variable also contains the link to the function that generated it. Then, this new Variable can be used as input for any subsequent operation, and the process is repeated.  Starting from the input, this chain of operations continues until the final layer of the network. 
 	In the backward pass, instead, each operation receives a gradient as parameter from the output Variable, calculates the derivative of the gradient wrt the inputs and then back propagates the new gradient to the input Variables. Inside the Variable itself, the gradient is accumulated in the \textit{grad} field and then passed to the previous operation if necessary. In the global point of view of the network, we first calculate the initial gradient with the loss function applied to the output and then we back propagate the gradient to each layer until we reach the input.
         
         
@@ -82,16 +82,16 @@ We now describe in details the structure of the code and classes.
 	
 	\item Functions: the folders contain different modules that implements the basic functions. Table 1 describes the content in details.
 \end{itemize}
-We also added the broadcasting functionality to the basic operations, that is the possibility to expand their arguments and make them of the same size. This functionality was required inside the Linear module, where we add a bias to the multiplication between input and weight matrix.
+We also added the broadcasting functionality to the basic operations, which is the possibility to expand their arguments and make them of the same size. This functionality was required inside the Linear module, where we add a bias to the multiplication between input and weight matrix.
 In the forward pass, this operation is trivially handled by the broadcast property of pytorch Tensors. In the backward pass, instead, if the gradient received by a Variable has not the same size of the data field, we must reshape it before the addition with the Variable's grad. This operation is easily implemented by summing the gradient over the dimensions that do not match. The property derives from the mathematical formula
 \[\frac{d}{dx}f(x,y)|_{x=y} = \frac{d}{dx}f(x,y) + \frac{d}{dy}f(x,y)\]
-When a variable is broadcasted, the dimensions that are expanded contains replicated values. Consequently, the derivative of the gradient can be seen as the sum of the derivatives along the axes that were replicated.
+When a variable is broadcasted, the dimensions that are expanded contains replicated values. Consequently, the derivative of the gradient can be seen as the sum of the derivatives along the axes that were replicated.\\
 
-
-
+Table \ref{tab:modules} summarizes the modules that are implemented in our framework, along with a short description and a specification of the forward pass:
 
 \begin{table*}
-
+\caption{Modules}
+\label{tab:modules}
 \begin{tabular}{ | c | c | p{10cm} | c | } 
 \hline
 Module & Classes & Description & Forward  \\
@@ -116,14 +116,14 @@ Losses & MSE & The mean square error extend the Module2Operands & $\frac{1}{N} \
 \end{table*}
 
 \section{Test}
-next steps and conclusions 
- indexing, convolutional
+%next steps and conclusions 
+% indexing, convolutional
  
 
-In this section we provide the description of the used dataset and the network built with our framework. Then, the performance of the model is shown by comparing it with well-known baselines.
+In this section we provide the description of the used dataset and the network built with our framework. Then, the validity of the built model is shown by comparing it with well-known baselines.
 
 \subsection{Dataset}
-The dataset consists of a training set and a test set of 1000 points each. These points are sampled uniformly in [0, 2]2, and they are labeled with 0 if they end up out of the disk of radius 1/sqrt(2*pi) (label is 1 otherwise). The following exhibit - which represents the train set used during the testing phase - contains a set of points that satisfy these properties:
+The dataset consists of a training set and a test set of 1000 points each. These points are sampled uniformly in [0, 1], and they are labeled with 0 if they end up out of the disk of radius \( \frac{1}{\sqrt{2\pi}} \) (label is 1 otherwise). The following exhibit - which represents the train set used during the testing phase - contains a set of points that satisfy these properties:
 
 \begin{center}
 	\captionsetup{type=figure}
@@ -156,6 +156,6 @@ The following image compares our model with common baselines.
 \end{center} 
 
 \section{Future developments and Conclusions}
-The bottom-up approach we followed to construct the framework allows us to easily develop additional features. The goal of this project was to design a fully connected neural network, but the framework can be expanded to support convolutional layers. The latters are beyond the complexity of the problem, but they would have been useful if we had to classify images and not simple points.
+The bottom-up approach we followed to construct the framework allows us to easily develop additional features. The goal of this project was to design a fully connected neural network, but the framework can be easily expanded to support convolutional layers. The latters are beyond the complexity of the problem, but they would have been useful if we had to classify images and not simple points.
 
 \end{document}

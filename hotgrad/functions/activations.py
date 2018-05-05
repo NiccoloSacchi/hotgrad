@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """ Implementation of the activation functions. """
 
-import operator 
 from torch import FloatTensor
 import hotgrad
 from hotgrad.module import Module2Operands, Module1Operand
@@ -31,10 +30,8 @@ class Tanh(Module1Operand):
     
     def forward(self, input):
         """ Compute the forward pass. """
-        
         super(Tanh, self).forward(input)
         
-#         res = (input.data.exp() - (-input.data).exp()) / (input.data.exp() + (-input.data).exp())
         return hotgrad.variable.Variable(input.data.tanh(), previous_op=self)
    
     def backward(self, grad):

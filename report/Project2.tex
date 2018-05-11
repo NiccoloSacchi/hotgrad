@@ -44,7 +44,7 @@
     \[b = b + \eta\nabla L(b)\]\\
    where \textit{w} and \textit{b} indicates the weight and biases for each layer.
 
-        
+The following section describes the implementation design choices behined our framework. Then, the structure of the code is described in section 3. Section 4 contains a description of the testing methodology, i.e., the dataset used to run the network, the network that was built through our framework, and the comparisons with other common models. Section 5 concludes this report by mentioning the achieved goals and the possible future developments.
 \section{Implementation}
 	Since this project provided the structure of the final neural network, the simplest approach to the problem would have been to contruct one class containing all the parameters of the layers and manually write the forward and backward pass. This would lead to a simple but difficult-to-read implemetation, without any possibility to expand or modify the network. We immediately discard this option and we instead focused on a modular solution.
 	Having in mind how a network operates, we can notice that in order to calculate the backward pass, each operation needs to keep track of the inputs that were passed to it, so that it can easily compute the derivative of the loss wrt them. Consequently, we started the implementation of the base operations, in particular addition, subtraction, multiplication, matrix multiplication, pow and mean, plus the activation functions ReLU and Tanh. Each of this operation saves the inputs that were passed to it and implements the forward and backward pass. On the other hand, we built the Variable class to wrap all the necessary information of a variable: the data value itself (that consists in a torch FloatTensor), the gradient and the link to the operation that generated it. This can be seen as a bottom up approach, where we decompose to problem starting from the very basic operations, and then construct more complex modules on top of them. The graph shown in picture 1 explains how this modules and variables are used to compute the forward and backward pass.
@@ -80,15 +80,12 @@ We now describe in details the structure of the code and classes.
 	\end{itemize}
 	With this additional information, the backward pass is just a recursive call to the backward function of the previous operation, passing the grad as parameter. 
 	
-	\item Functions: the folders contain different modules that implements the basic functions. Table 1 describes the content in details.
+	\item Functions: the folders contain different modules that implements the basic functions. Table \ref{tab:modules} describes the content in details.
 \end{itemize}
 We also added the broadcasting functionality to the basic operations, which is the possibility to expand their arguments and make them of the same size. This functionality was required inside the Linear module, where we add a bias to the multiplication between input and weight matrix.
 In the forward pass, this operation is trivially handled by the broadcast property of pytorch Tensors. In the backward pass, instead, if the gradient received by a Variable has not the same size of the data field, we must reshape it before the addition with the Variable's grad. This operation is easily implemented by summing the gradient over the dimensions that do not match. The property derives from the mathematical formula
 \[\frac{d}{dx}f(x,y)|_{x=y} = \frac{d}{dx}f(x,y) + \frac{d}{dy}f(x,y)\]
 When a variable is broadcasted, the dimensions that are expanded contains replicated values. Consequently, the derivative of the gradient can be seen as the sum of the derivatives along the axes that were replicated.\\
-
-Table \ref{tab:modules} summarizes the modules that are implemented in our framework, along with a short description and a specification of the forward pass:
-
 \begin{table*}
 \caption{Modules}
 \label{tab:modules}
@@ -161,7 +158,8 @@ better performance could have been achieved through feature extraction.
 It can also be seen that our model performs slightly better than any of the tested
 baselines.\\
 Finally, it is easy to notice that the the sequential module built by using our framework is qualitatively the same as the one built by using the pytorch primitives.
-\section{Future developments and Conclusions}
-The bottom-up approach we followed to construct the framework allows us to easily develop additional features. The goal of this project was to design a fully connected neural network, but the framework can be easily expanded to support convolutional layers. The latters are beyond the complexity of the problem, but they would have been useful if we had to classify images and not simple points.
+\section{Conclusion and Future Developments}
+Our library is perfectly able to combine fully connected layers, to run the forward and backward passes, and to optimize the parameters through SGD and MSE.
+\\Furthermore, the bottom-up approach that we followed allows us to easily develop and integrate new features. In fact, although the goal of this project was to to be able to build fully connected neural network, the framework can be easily expanded to support several other useful functionalities, such as convolutional layers, additional loss functions and optimizers, regularization (through the loss functions or optimizers), activation functions etc. This is beyond the goal of this project, but it is very useful if when dealing with more complex datasets.
 
 \end{document}

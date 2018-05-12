@@ -6,7 +6,7 @@ from torch import FloatTensor
 
 from hotgrad.module import Module
 
-from hotgrad.functions.operands import *
+from hotgrad.functions.operators import *
 from hotgrad.functions.losses import *
 from hotgrad.functions.activations import ReLU, Tanh
 from hotgrad.exceptions import BackwardException

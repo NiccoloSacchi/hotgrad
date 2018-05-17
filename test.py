@@ -27,4 +27,4 @@ X_test.data = (X_test.data - X_test.data.mean())/X_test.data.std()
 
 # model: two input units, two output units, three hidden layers of 25 units
 model = Sequential([Linear(25), ReLU(), Linear(25), ReLU(), Linear(25), ReLU(), Linear(2), Tanh()], MSE(), SGD(lr=0.01))
-model.fit(X_train, y_train, X_test, y_test, epochs=1000, log_error=True, verbose=True)
+model.fit(X_train, y_train, X_test, y_test, epochs=300, log_error=True, verbose=True)

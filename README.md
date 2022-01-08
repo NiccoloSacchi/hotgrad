@@ -7,4 +7,5 @@ Folders and files:
 - `test.py`: tests the neural network implemented with our library and shows the accurancy.
 - `Report.pdf`: report explaining our approach and implemenation of the deep learning library.
 
-We suggest to read the report for a detalied description of the library.
+### Report
+For a detailed description of the implemented solution please refer to the [Report](https://github.com/NiccoloSacchi/hotgrad/blob/master/Report.pdf).
